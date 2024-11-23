@@ -1,0 +1,42 @@
+﻿@page
+@model Pharmacie.Pages.Medications.IndexxModel
+
+<h1>Medications</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Nom</th>
+            <th>DCI1</th>
+            <th>Dosage</th>
+            <th>Unité Dosage</th>
+            <th>Forme</th>
+            <th>Présentation</th>
+            <th>PPV</th>
+            <th>PH</th>
+            <th>Prix Br</th>
+            <th>Princeps/Generique</th>
+            <th>Taux Remboursement</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var med in Model.Medications)  
+        {
+            <tr>
+                <td>@med.Code</td>
+                <td>@med.Nom</td>
+                <td>@med.DCI1</td>
+                <td>@med.Dosage1</td>
+                <td>@med.UniteDosage1</td>
+                <td>@med.Forme</td>
+                <td>@med.Presentation</td>
+                <td>@med.PPV</td>
+                <td>@med.PH</td>
+                <td>@med.PrixBr</td>
+                <td>@med.PrincepsGenerique</td>
+                <td>@med.TauxRemboursement</td>
+            </tr>
+        }
+    </tbody>
+</table>

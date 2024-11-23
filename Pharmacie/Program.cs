@@ -1,3 +1,5 @@
+using Pharmacie.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,3 +21,10 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+builder.Services.AddSingleton<ExcelService>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var filePath = configuration["ExcelFilePath"];
+    return new ExcelService(filePath);
+});
