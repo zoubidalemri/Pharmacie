@@ -1,0 +1,41 @@
+﻿@page
+@model Pharmacie.Pages.Finance.IndexfModel
+@{
+    ViewData["Title"] = "Statistiques des Ventes";
+}
+
+<h1>Statistiques des Ventes</h1>
+
+<!-- Statistiques des ventes -->
+<div>
+    <h2>Total des ventes : @Model.TotalVentes</h2>
+    <h2>Gains totaux : @Model.TotalGains Dhs</h2>
+</div>
+
+<!-- Bouton pour accéder à l'historique -->
+<div>
+    <a asp-page="/Finance/Historique" class="btn btn-primary">Voir l'Historique des Ventes</a>
+</div>
+
+<!-- Tableau des dernières ventes -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Médicament</th>
+            <th>Montant</th>
+            <th>Gain</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vente in Model.DernieresVentes)
+        {
+            <tr>
+                <td>@vente.Date.ToShortDateString()</td>
+                <td>@vente.Medicament.Nom</td>
+                <td>@vente.Montant</td>
+                <td>@vente.Gain</td>
+            </tr>
+        }
+    </tbody>
+</table>

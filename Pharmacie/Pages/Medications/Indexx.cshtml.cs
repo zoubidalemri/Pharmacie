@@ -13,7 +13,8 @@ namespace Pharmacie.Pages.Medications
         public void OnGet()
         {
             // Load data from the Excel file
-            Medications = LoadMedicationsFromExcel("C:\\Users\\user\\Downloads\\ref-des-medicaments-cnops-2014.xlsx");
+            Medications = LoadMedicationsFromExcel("C:\\Users\\info\\Downloads\\ref-des-medicaments-cnops-2014.xlsx");
+
         }
 
         private List<Medication> LoadMedicationsFromExcel(string filePath)

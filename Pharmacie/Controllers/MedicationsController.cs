@@ -10,9 +10,18 @@ public class MedicationsController : Controller
         _excelService = excelService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> ImportFromExcel()
     {
-        var medications = _excelService.GetMedications();
-        return View(medications);
+        try
+        {
+            await _excelService.GetMedicationsAsync();
+            TempData["Message"] = "Les données ont été importées avec succès depuis le fichier Excel.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Erreur lors de l'importation : {ex.Message}";
+        }
+
+        return RedirectToAction("Index");
     }
 }
