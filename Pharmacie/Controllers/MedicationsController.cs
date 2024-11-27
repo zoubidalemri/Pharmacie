@@ -1,27 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Pharmacie.Services;
+using Microsoft.EntityFrameworkCore;
+using Pharmacie.Data;
+using Pharmacie.Models;
 
-public class MedicationsController : Controller
-{
-    private readonly ExcelService _excelService;
-
-    public MedicationsController(ExcelService excelService)
+    public class MedicationsController : Controller
     {
-        _excelService = excelService;
+        private readonly ApplicationDbContext _context;
+
+        public MedicationsController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+    public IActionResult Indexx()
+    {
+        var medicaments = _context.Medicaments.ToList();
+        return View(medicaments);
     }
 
-    public async Task<IActionResult> ImportFromExcel()
-    {
-        try
-        {
-            await _excelService.GetMedicationsAsync();
-            TempData["Message"] = "Les données ont été importées avec succès depuis le fichier Excel.";
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = $"Erreur lors de l'importation : {ex.Message}";
-        }
-
-        return RedirectToAction("Index");
+      
     }
-}
+

@@ -1,41 +1,127 @@
 ﻿@page
 @model Pharmacie.Pages.Finance.IndexfModel
+
 @{
     ViewData["Title"] = "Statistiques des Ventes";
 }
 
 <h1>Statistiques des Ventes</h1>
-
-<!-- Statistiques des ventes -->
-<div>
-    <h2>Total des ventes : @Model.TotalVentes</h2>
-    <h2>Gains totaux : @Model.TotalGains Dhs</h2>
-</div>
-
-<!-- Bouton pour accéder à l'historique -->
 <div>
     <a asp-page="/Finance/Historique" class="btn btn-primary">Voir l'Historique des Ventes</a>
 </div>
 
-<!-- Tableau des dernières ventes -->
+<form method="post">
+    <div>
+        <label>
+            <input type="radio" name="TypeStatistique" value="mois" checked="checked" />
+            Par mois
+        </label>
+        <label>
+            <input type="radio" name="TypeStatistique" value="annee" />
+            Par année
+        </label>
+    </div>
+
+    <div id="monthSelection" style="display: block;">
+        <label for="MoisAnnee">Mois/Année :</label>
+        <input type="text" id="MoisAnnee" name="MoisAnnee" placeholder="MM/yyyy" />
+    </div>
+
+    <div id="yearSelection" style="display: none;">
+        <label for="Annee">Année :</label>
+        <input type="number" id="Annee" name="Annee" min="2000" max="2100" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+</form>
+
+<hr />
+
+<div>
+    <h2>Total des ventes : @Model.TotalVentes Dhs</h2>
+    <h2>Gains totaux : @Model.TotalGains Dhs</h2>
+</div>
+
 <table class="table">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Médicament</th>
+            <th>Période</th>
             <th>Montant</th>
             <th>Gain</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var vente in Model.DernieresVentes)
+        @foreach (var vente in Model.VentesParMois)
         {
             <tr>
-                <td>@vente.Date.ToShortDateString()</td>
-                <td>@vente.Medicament.Nom</td>
+                <td>@vente.Mois</td>
                 <td>@vente.Montant</td>
                 <td>@vente.Gain</td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Graphique des ventes -->
+<canvas id="salesChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.querySelectorAll("input[name='TypeStatistique']").forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.getElementById('monthSelection').style.display = this.value === 'mois' ? 'block' : 'none';
+            document.getElementById('yearSelection').style.display = this.value === 'annee' ? 'block' : 'none';
+        });
+    });
+
+    // Ensure VentesParMois is properly serialized
+    var ventesParMois = @Html.Raw(Json.Serialize(Model.VentesParMois));
+
+    console.log("VentesParMois data:", ventesParMois); // Debugging data
+
+    if (ventesParMois.length === 0) {
+        console.error("Aucune donnée disponible pour afficher le graphique.");
+    }
+
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    if (ventesParMois.length > 0) {
+        var salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ventesParMois.map(v => v.Mois || 'N/A'),
+                datasets: [{
+                    label: 'Ventes Totales',
+                    data: ventesParMois.map(v => v.Montant || 0),
+                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Gains Totaux',
+                    data: ventesParMois.map(v => v.Gain || 0),
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw + ' Dhs';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    } else {
+        ctx.fillText("Aucune donnée pour afficher le graphique.", 100, 100);
+    }
+</script>

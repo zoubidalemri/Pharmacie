@@ -1,42 +1,234 @@
 ﻿@page
 @model Pharmacie.Pages.Medications.IndexxModel
 
-<h1>Medications</h1>
+<h2>Liste des Médicaments</h2>
 
-<table class="table">
+<!-- Bouton Ajouter Médicament -->
+<div class="mb-3">
+    <button class="btn btn-success" onclick="scrollToForm()">Ajouter Médicament</button>
+</div>
+
+<!-- Barre de recherche -->
+<div class="mb-3">
+    <input type="text" id="search" placeholder="Rechercher un médicament..." class="form-control" oninput="filterMedications()" />
+</div>
+
+<!-- Liste des médicaments -->
+<table id="medicationTable" class="table">
     <thead>
         <tr>
             <th>Code</th>
             <th>Nom</th>
-            <th>DCI1</th>
+            <th>DCI</th>
             <th>Dosage</th>
             <th>Unité Dosage</th>
             <th>Forme</th>
             <th>Présentation</th>
+            <th>Prix Br</th>
             <th>PPV</th>
             <th>PH</th>
-            <th>Prix Br</th>
-            <th>Princeps/Generique</th>
             <th>Taux Remboursement</th>
+            <th>Princeps/Générique</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var med in Model.Medications)  
+        @foreach (var medicament in Model.Medications)
         {
-            <tr>
-                <td>@med.Code</td>
-                <td>@med.Nom</td>
-                <td>@med.DCI1</td>
-                <td>@med.Dosage1</td>
-                <td>@med.UniteDosage1</td>
-                <td>@med.Forme</td>
-                <td>@med.Presentation</td>
-                <td>@med.PPV</td>
-                <td>@med.PH</td>
-                <td>@med.PrixBr</td>
-                <td>@med.PrincepsGenerique</td>
-                <td>@med.TauxRemboursement</td>
+            <tr id="medication-@medicament.Id">
+                <td>@medicament.Code</td>
+                <td>@medicament.Nom</td>
+                <td>@medicament.DCI1</td>
+                <td>@medicament.Dosage1</td>
+                <td>@medicament.UniteDosage1</td>
+                <td>@medicament.Forme</td>
+                <td>@medicament.Presentation</td>
+                <td>@(medicament.PrixBr?.ToString("C") ?? "0.00")</td>
+                <td>@medicament.PPV</td>
+                <td>@medicament.PH</td>
+                <td>@medicament.TauxRemboursement</td>
+                <td>@medicament.PrincepsGenerique</td>
+                <td>
+                <td>
+                    <button class="btn btn-warning btn-sm"
+                            onclick="scrollToMedication(@medicament.Id)"
+                            data-code="@medicament.Code"
+                            data-nom="@medicament.Nom"
+                            data-dci="@medicament.DCI1"
+                            data-dosage="@medicament.Dosage1"
+                            data-uniteDosage="@medicament.UniteDosage1"
+                            data-forme="@medicament.Forme"
+                            data-presentation="@medicament.Presentation"
+                            data-prixBr="@medicament.PrixBr"
+                            data-ppv="@medicament.PPV"
+                            data-ph="@medicament.PH"
+                            data-tauxRemboursement="@medicament.TauxRemboursement"
+                            data-princepsGenerique="@medicament.PrincepsGenerique">
+                        Modifier
+                    </button>
+                </td>
+                <td>
+
+                    <a href="javascript:void(0);" onclick="confirmDelete(@medicament.Id)" class="btn btn-danger btn-sm">
+                        Supprimer
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Formulaire d'ajout ou d'édition -->
+<div id="formSection">
+    <form method="post" class="mb-4">
+        <input type="hidden" asp-for="Medication.Id" />
+
+        <div class="form-group">
+            <label for="Code">Code</label>
+            <input type="text" id="Code" asp-for="Medication.Code" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Nom">Nom</label>
+            <input type="text" id="Nom" asp-for="Medication.Nom" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="DCI1">DCI</label>
+            <input type="text" id="DCI1" asp-for="Medication.DCI1" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Dosage1">Dosage</label>
+            <input type="text" id="Dosage1" asp-for="Medication.Dosage1" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="UniteDosage1">Unité Dosage</label>
+            <input type="text" id="UniteDosage1" asp-for="Medication.UniteDosage1" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Forme">Forme</label>
+            <input type="text" id="Forme" asp-for="Medication.Forme" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Presentation">Présentation</label>
+            <input type="text" id="Presentation" asp-for="Medication.Presentation" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="PrixBr">Prix Br</label>
+            <input type="number" id="PrixBr" asp-for="Medication.PrixBr" step="0.01" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="PPV">PPV</label>
+            <input type="number" id="PPV" asp-for="Medication.PPV" step="0.01" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="PH">PH</label>
+            <input type="number" id="PH" asp-for="Medication.PH" step="0.01" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="TauxRemboursement">Taux Remboursement</label>
+            <input type="number" id="TauxRemboursement" asp-for="Medication.TauxRemboursement" step="0.01" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="PrincepsGenerique">Princeps/Générique</label>
+            <input type="text" id="PrincepsGenerique" asp-for="Medication.PrincepsGenerique" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @(Model.Medication.Id == 0 ? "Ajouter" : "Modifier")
+        </button>
+    </form>
+</div>
+
+<!-- Bouton Remonter en haut -->
+<button onclick="scrollToTop()" id="scrollToTopBtn" class="btn btn-primary" style="position: fixed; bottom: 20px; right: 20px; display: none;">
+    Remonter
+</button>
+
+<script>
+    // Fonction pour filtrer les médicaments
+    function filterMedications() {
+        const search = document.getElementById("search").value.toLowerCase();
+        const rows = document.querySelectorAll("#medicationTable tbody tr");
+
+        rows.forEach(row => {
+            const nom = row.children[1].textContent.toLowerCase();
+            if (nom.startsWith(search)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+
+    // Fonction pour défiler vers un médicament spécifique
+    function scrollToMedication(id) {
+        const element = document.getElementById(`medication-${id}`);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // Attendre un peu pour s'assurer que le formulaire soit affiché avant de faire défiler vers lui
+        setTimeout(() => {
+            scrollToForm();
+        }, 500);
+    }
+
+    // Défilement vers le formulaire d'ajout ou modification
+    function scrollToForm() {
+        const form = document.getElementById("formSection");
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // Fonction de confirmation avant suppression
+    function confirmDelete(medicamentId) {
+        if (confirm("Êtes-vous sûr de vouloir supprimer ce médicament ?")) {
+            // Si l'utilisateur confirme, redirige vers l'URL de suppression
+            window.location.href = '/Medications/Indexx?deleteId=' + medicamentId;
+        }
+    }
+
+    // Fonction pour remonter en haut
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Afficher ou masquer le bouton de remontée en fonction du défilement de la page
+    window.onscroll = function() {
+        const button = document.getElementById("scrollToTopBtn");
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            button.style.display = "block"; // Afficher le bouton
+        } else {
+            button.style.display = "none"; // Masquer le bouton
+        }
+    }
+        // Fonction pour défiler vers un médicament spécifique et remplir le formulaire
+        // Fonction pour défiler vers un médicament spécifique et remplir le formulaire
+    function scrollToMedication(id) {
+        const element = document.getElementById(`medication-${id}`);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // Attendre un peu pour s'assurer que le formulaire soit affiché avant de faire défiler vers lui
+        setTimeout(() => {
+            scrollToForm();
+
+            // Récupérer les données du médicament
+            const button = element.querySelector("button");
+            const form = document.querySelector("#formSection form");
+
+            // Remplir le formulaire avec les données du médicament
+            form.querySelector("#Code").value = button.getAttribute("data-code");
+            form.querySelector("#Nom").value = button.getAttribute("data-nom");
+            form.querySelector("#DCI1").value = button.getAttribute("data-dci");
+            form.querySelector("#Dosage1").value = button.getAttribute("data-dosage");
+            form.querySelector("#UniteDosage1").value = button.getAttribute("data-uniteDosage");
+            form.querySelector("#Forme").value = button.getAttribute("data-forme");
+            form.querySelector("#Presentation").value = button.getAttribute("data-presentation");
+
+            // Assurez-vous de remplir les champs PrixBr, PPV, PH et TauxRemboursement
+            form.querySelector("#PrixBr").value = button.getAttribute("data-prixBr");
+            form.querySelector("#PPV").value = button.getAttribute("data-ppv");
+            form.querySelector("#PH").value = button.getAttribute("data-ph");
+            form.querySelector("#TauxRemboursement").value = button.getAttribute("data-tauxRemboursement");
+            form.querySelector("#PrincepsGenerique").value = button.getAttribute("data-princepsGenerique");
+        }, 500);
+    }
+
+
+</script>

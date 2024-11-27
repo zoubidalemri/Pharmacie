@@ -1,59 +1,75 @@
-using OfficeOpenXml;
-using System.IO;
-using System.Collections.Generic;
-using Pharmacie.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Pharmacie.Data;
+using Pharmacie.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Pharmacie.Pages.Medications
 {
     public class IndexxModel : PageModel
     {
-        public List<Medication> Medications { get; set; } = new List<Medication>();
+        private readonly ApplicationDbContext _context;
 
-        public void OnGet()
+        public IndexxModel(ApplicationDbContext context)
         {
-            // Load data from the Excel file
-            Medications = LoadMedicationsFromExcel("C:\\Users\\info\\Downloads\\ref-des-medicaments-cnops-2014.xlsx");
-
+            _context = context;
         }
 
-        private List<Medication> LoadMedicationsFromExcel(string filePath)
+        [BindProperty]
+        public Medication Medication { get; set; } = new();
+
+        public List<Medication> Medications { get; set; } = new();
+
+        public void OnGet(int? editId, int? deleteId)
         {
-            var medications = new List<Medication>();
+            // Charger la liste des médicaments
+            Medications = _context.Medicaments.ToList();
 
-            // Ensure that EPPlus is used correctly by enabling license context
-            ExcelPackage.LicenseContext = LicenseContext.Commercial;
-
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            // Si un ID de modification est fourni, charger l'objet correspondant
+            if (editId.HasValue)
             {
-                var worksheet = package.Workbook.Worksheets[0]; // Get the first sheet
-                var rowCount = worksheet.Dimension.Rows; // Get row count
-                var colCount = worksheet.Dimension.Columns; // Get column count
-
-                // Loop through each row (starting from row 2, assuming row 1 is header)
-                for (int row = 2; row <= rowCount; row++)
-                {
-                    var medication = new Medication
-                    {
-                        Code = worksheet.Cells[row, 1].Text,
-                        Nom = worksheet.Cells[row, 2].Text,
-                        DCI1 = worksheet.Cells[row, 3].Text,
-                        Dosage1 = worksheet.Cells[row, 4].Text,
-                        UniteDosage1 = worksheet.Cells[row, 5].Text,
-                        Forme = worksheet.Cells[row, 6].Text,
-                        Presentation = worksheet.Cells[row, 7].Text,
-                        PPV = decimal.TryParse(worksheet.Cells[row, 8].Text, out decimal ppv) ? ppv : 0,
-                        PH = decimal.TryParse(worksheet.Cells[row, 9].Text, out decimal ph) ? ph : 0,
-                        PrixBr = decimal.TryParse(worksheet.Cells[row, 10].Text, out decimal prixBr) ? prixBr : 0,
-                        PrincepsGenerique = worksheet.Cells[row, 11].Text,
-                        TauxRemboursement = decimal.TryParse(worksheet.Cells[row, 12].Text, out decimal tauxRemboursement) ? tauxRemboursement : 0
-                    };
-
-                    medications.Add(medication);
-                }
+                Medication = _context.Medicaments.Find(editId.Value) ?? new Medication();
             }
 
-            return medications;
+            // Si un ID de suppression est fourni, supprimer l'objet correspondant
+            if (deleteId.HasValue)
+            {
+                var medicamentToDelete = _context.Medicaments.Find(deleteId.Value);
+                if (medicamentToDelete != null)
+                {
+                    _context.Medicaments.Remove(medicamentToDelete);
+                    _context.SaveChanges();
+                }
+
+                // Recharger la liste après suppression
+                Medications = _context.Medicaments.ToList();
+            }
+        }
+
+        public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid)
+            {
+                Medications = _context.Medicaments.ToList();
+                return Page();
+            }
+
+            if (Medication.Id == 0)
+            {
+                // Ajouter un nouveau médicament
+                _context.Medicaments.Add(Medication);
+            }
+            else
+            {
+                // Modifier un médicament existant
+                _context.Medicaments.Update(Medication);
+            }
+
+            _context.SaveChanges();
+
+            // Rediriger pour éviter le double POST
+            return RedirectToPage("/Medications/Indexx");
         }
     }
 }
