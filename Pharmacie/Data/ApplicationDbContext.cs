@@ -21,7 +21,10 @@ namespace Pharmacie.Data
             // Configure la clé primaire pour l'entité Medication
             modelBuilder.Entity<Medication>()
                 .ToTable("Medicaments","dbo")
-                .HasKey(m => m.Id);  // Spécifie que 'Id' est la clé primaire
+                .HasKey(m => m.Id);
+            modelBuilder.Entity<Vente>()
+                .ToTable("Ventes", "dbo")
+                .HasKey(m => m.Id);// Spécifie que 'Id' est la clé primaire
 
             modelBuilder.Entity<Vente>(entity =>
             {

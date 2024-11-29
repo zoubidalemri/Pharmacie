@@ -7,6 +7,7 @@ using Pharmacie.Data;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Pharmacie.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,12 +22,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
 
     options.UseSqlServer(connectionString);
+   
 });
 
 
 builder.Services.AddRazorPages();
 
-
+builder.Services.AddScoped<VenteService>();
+builder.Services.AddControllersWithViews();
 
 
 var app = builder.Build();
@@ -50,7 +53,11 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Medications}/{action=Indexm}/{id?}");
+    pattern: "{controller=Vente}/{action=vente}/{id?}");
+app.MapGet("/", async context =>
+{
+    context.Response.Redirect("/Ventes/vente");
+});
 
 app.Run();
 

@@ -1,0 +1,73 @@
+﻿@page
+@model Pharmacie.Pages.Ventes.VenteModel
+
+@{
+    ViewData["Title"] = "Gestion des Ventes";
+}
+
+<h2>Gestion des Ventes</h2>
+
+
+<!-- Form for Adding a New Sale -->
+<form asp-controller="Vente" asp-action="AddVente" method="post">
+    <div class="form-group">
+        <label for="Date">Date de la Vente:</label>
+        <input type="datetime-local" name="Date" id="Date" class="form-control" required />
+    </div>
+    <label for="MedicamentId">Médicament:</label>
+    <select id="MedicamentId" name="MedicamentId" class="form-control" required>
+        <option value="" disabled selected>-- Sélectionnez un médicament --</option>
+        @if (Model.Medications.Any())
+        {
+            @foreach (var med in Model.Medications)
+            {
+                <option value="@med.Id" data-prixbr="@med.PrixBr">@med.Nom</option>
+            }
+        }
+        else
+        {
+            <option value="">Aucun médicament disponible</option>
+        }
+    </select>
+
+    <label for="QuantiteVendu">Quantité Vendue:</label>
+    <input type="number" id="QuantiteVendu" name="QuantiteVendu" class="form-control" required />
+
+    <!-- Montant (calculated based on QuantiteVendu and Medicament) -->
+    <label for="Montant">Montant:</label>
+    <input type="number" id="Montant" name="Montant" class="form-control" readonly />
+
+   
+    
+
+    <button type="submit" class="btn btn-primary mt-3">Ajouter Vente</button>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const medicamentSelect = document.getElementById("MedicamentId");
+        const quantiteInput = document.getElementById("QuantiteVendu");
+        const montantInput = document.getElementById("Montant");
+
+        function calculateMontant() {
+            const selectedOption = medicamentSelect.options[medicamentSelect.selectedIndex];
+            const prixBr = parseFloat(selectedOption.getAttribute("data-prixbr"));
+            const quantite = parseFloat(quantiteInput.value);
+
+            if (!isNaN(prixBr) && !isNaN(quantite)) {
+                montantInput.value = (prixBr * quantite).toFixed(2);
+            } else {
+                montantInput.value = '';
+            }
+        }
+
+        medicamentSelect.addEventListener("change", calculateMontant);
+        quantiteInput.addEventListener("input", calculateMontant);
+    });
+</script>
+
+
+
+
+
+

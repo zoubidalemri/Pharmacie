@@ -1,0 +1,27 @@
+﻿@page
+@model Pharmacie.Pages.Medications.SearchModel
+@{
+    ViewData["Title"] = "Search Medications";
+}
+
+<h2>Résultats de recherche</h2>
+
+
+
+@if (Model.SearchResults.Any())
+{
+    <ul>
+        @foreach (var medicament in Model.SearchResults)
+        {
+            <li>
+                <h3>@medicament.Nom</h3>
+                <p>@medicament.Presentation</p>
+                <p>Prix: @medicament.PrixBr</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Aucun médicament trouvé correspondant à votre recherche.</p>
+}

@@ -37,9 +37,15 @@ namespace Pharmacie.Models
         [Precision(18, 2)]
         public decimal Gain { get; set; }
 
+    
+        public int QuantiteVendu { get; set; }
+
         // Nullable foreign key reference
         public int? MedicamentId { get; set; }
         public Medication? Medicament { get; set; }
+        public Vente()
+        {
+        }
     }
    
 

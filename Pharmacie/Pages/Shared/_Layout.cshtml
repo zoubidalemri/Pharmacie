@@ -7,13 +7,17 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Pharmacie.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/base/jquery-ui.min.css" />
+    
+
+
 </head>
 <body>
     <header>
         <!-- Navigation Bar -->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Pharmacie</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Ventes/vente">Pharmacie</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -21,17 +25,25 @@
                 <div class="collapse navbar-collapse" id="navbarContent">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Medications/Indexx">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Ventes/vente">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
                     <!-- Search Bar -->
-                    <form class="d-flex ms-auto">
-                        <input class="form-control me-2" type="search" placeholder="Rechercher..." aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    <form method="get" action="@Url.Page("/Medications/Search")">
+                        <input type="text" id="medicationSearch" name="query" placeholder="Rechercher un médicament" />
+                        <div id="autocompleteResults" class="autocomplete-results"></div>
+                        <button type="submit">Rechercher</button>
                     </form>
+
+                   
+
+
+
+
+
                     <!-- Dropdown Menu -->
                     <div class="dropdown ms-3">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,8 +51,8 @@
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="optionsMenu">
                             <li><a class="dropdown-item" asp-area="" asp-page="/Stock">Gérer stock</a></li>
-                            <li><a class="dropdown-item" asp-area="" asp-page="/Medicaments">Gérer médicaments</a></li>
-                            <li><a class="dropdown-item" asp-area="" asp-page="/Finance">Gérer finance</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-page="/Medications/Indexx">Gérer médicaments</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-page="/Finance/Indexf">Gérer finance</a></li>
                         </ul>
                     </div>
                 </div>
@@ -48,6 +60,7 @@
         </nav>
     </header>
 
+    <div id="autocompleteResults" class="autocomplete-results"></div>  <!-- Container for search results -->
     <!-- Main Content -->
     <div class="container">
         <main role="main" class="pb-3">
@@ -63,9 +76,60 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+
+    <script>
+                                             $(document).ready(function() {
+            $('#medicationSearch').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '/Medications/Autocomplete',
+                        data: { term: request.term },
+                        success: function(data) {
+                            var resultsContainer = $('#autocompleteResults');
+                            resultsContainer.empty();  // Clear previous results
+                            if (data.length) {
+                                data.forEach(function(item) {
+                                    resultsContainer.append('<div class="autocomplete-item">' + item + '</div>');
+                                });
+                                resultsContainer.show();  // Show the dropdown
+                            } else {
+                                resultsContainer.hide();  // Hide if no results
+                            }
+                        }
+                    });
+                },
+                minLength: 2,  // Start suggesting after typing 2 characters
+                select: function(event, ui) {
+                    // This will still be triggered when an item is selected by arrow keys
+                    $('#medicationSearch').val(ui.item.value);
+                    $('#autocompleteResults').hide();  // Hide the dropdown after selection
+                    return false;  // Prevent the default behavior
+                }
+            });
+
+            // Manually handle the click event on the dropdown items
+            $(document).on('click', '#autocompleteResults .autocomplete-item', function() {
+                var selectedText = $(this).text();
+                $('#medicationSearch').val(selectedText);  // Fill the input with the selected suggestion
+                $('#autocompleteResults').hide();  // Hide the dropdown after selection
+            });
+
+            // Hide the suggestions dropdown when clicking outside
+            $(document).click(function(e) {
+                if (!$(e.target).closest('#medicationSearch').length) {
+                    $('#autocompleteResults').hide();  // Hide the dropdown
+                }
+            });
+        });
+
+
+
+    </script>
 </body>
 </html>

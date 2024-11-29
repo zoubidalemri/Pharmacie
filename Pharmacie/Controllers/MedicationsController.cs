@@ -17,6 +17,23 @@ using Pharmacie.Models;
         return View(medicaments);
     }
 
-      
+   
+    public IActionResult Autocomplete(string term) {
+        if (string.IsNullOrEmpty(term))
+    {
+        return Json(new string[] { });
     }
+   
+        var suggestions = _context.Medicaments
+           .Where(m => m.Nom.ToLower().StartsWith(term.ToLower()))
+          
+            .Select(m => m.Nom)
+            .ToList();
+
+        return Json(suggestions);
+    }
+
+
+
+}
 

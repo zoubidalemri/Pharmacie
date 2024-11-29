@@ -16,3 +16,22 @@ html {
 body {
   margin-bottom: 60px;
 }
+#autocompleteResults {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background-color: white;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+    #autocompleteResults div {
+        padding: 8px;
+        cursor: pointer;
+    }
+
+        #autocompleteResults div:hover {
+            background-color: #f1f1f1;
+        }
