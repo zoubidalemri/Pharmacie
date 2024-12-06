@@ -1,62 +1,48 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pharmacie.Data;
 using Pharmacie.Models;
-using Pharmacie.Services;
 
-[Route("Vente")]
-public class VenteController : Controller
+namespace Pharmacie.Controllers
 {
-    private readonly VenteService _venteService;
-    private readonly ApplicationDbContext _context;
-    private readonly ILogger<VenteController> _logger;
-
-    public List<Medication> Medications { get; private set; }
-    public List<Vente> ventes { get; private set; }
-
-    public VenteController(VenteService venteService, ApplicationDbContext context, ILogger<VenteController> logger)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class VentesController : ControllerBase
     {
-        _venteService = venteService;
-        _context = context;
-        _logger = logger;
-    }
+        private readonly DbContext _context;
 
-    public async Task<IActionResult> GestionDesVentes()
-    {
-        var ventes = await _context.Ventes.Include(v => v.Medicament).ToListAsync();
-    var medications = await _context.Medicaments.ToListAsync();
-    ViewBag.Ventes = ventes;
-    ViewBag.Medications = medications;
-        // Correct: Passing a List<Vente>
-        return View(ventes);
-
-
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> AddVente(int MedicamentId, int QuantiteVendu)
-    {
-        var medicament = await _context.Medicaments.FindAsync(MedicamentId);
-        if (medicament == null)
+        public VentesController(DbContext context)
         {
-            // Handle error if medicament is not found
-            ModelState.AddModelError(string.Empty, "Médicament introuvable.");
-            return RedirectToAction("/Ventes/vente");
+            _context = context;
         }
 
-        var vente = new Vente
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Vente>>> GetVentes()
         {
-            MedicamentId = MedicamentId,
-            QuantiteVendu = QuantiteVendu,
-            Montant = (decimal)((medicament.PrixBr??0) * QuantiteVendu),
-            Gain = (decimal)((medicament.PrixBr ?? 0) * QuantiteVendu)
-        };
+            return await _context.Set<Vente>().Include(v => v.Medicament).ToListAsync();
+        }
 
-        _context.Ventes.Add(vente);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(vente));
+        [HttpPost]
+        public async Task<IActionResult> AddVente(Vente vente)
+        {
+            var stock = await _context.Set<Stock>().FirstOrDefaultAsync(s => s.MedicamentId == vente.MedicamentId);
+
+            if (stock == null || stock.Quantite < vente.QuantiteVendu)
+                return BadRequest("Insufficient stock for this sale.");
+
+            stock.Quantite -= vente.QuantiteVendu;
+
+            _context.Set<Vente>().Add(vente);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+
+            return CreatedAtAction(nameof(GetVentes), new { id = vente.Id }, vente);
+        }
     }
-
-    
 }
-

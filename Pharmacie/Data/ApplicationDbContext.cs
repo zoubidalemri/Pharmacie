@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pharmacie.Models;  // Assurez-vous que les modèles comme Vente et Medication sont bien importés
+using Pharmacie.Models;
 
 namespace Pharmacie.Data
 {
@@ -10,17 +10,22 @@ namespace Pharmacie.Data
         {
         }
 
-        public DbSet<Medication> Medicaments { get; set; }  // Table des médicaments
-        public DbSet<Vente> Ventes { get; set; }            // Table des ventes
+        public DbSet<Medication> Medicaments { get; set; } = null!;
+        public DbSet<Vente> Ventes { get; set; } = null!;
 
-        // Cette méthode est appelée lors de la création du modèle
+
+        public DbSet<Stock> Stocks { get; set; } = null!;
+        // Table for stock
+        // Table for sales
+
+        // This method is called when the model is being created
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Configure la clé primaire pour l'entité Medication
             modelBuilder.Entity<Medication>()
-                .ToTable("Medicaments","dbo")
+                .ToTable("Medicaments", "dbo")
                 .HasKey(m => m.Id);
             modelBuilder.Entity<Vente>()
                 .ToTable("Ventes", "dbo")
@@ -47,7 +52,7 @@ namespace Pharmacie.Data
                 entity.Property(m => m.TauxRemboursement)
                       .HasPrecision(5, 2); // Par exemple, pour un taux comme 99.99 %
             });
-          
+
 
         }
 

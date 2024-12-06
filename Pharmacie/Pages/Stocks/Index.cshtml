@@ -1,0 +1,106 @@
+﻿@page
+@model Pharmacie.Pages.Stocks.IndexModel
+
+<h1>Stocks</h1>
+
+<!-- Button to toggle visibility of the add stock form -->
+<button type="button" id="addStockButton" class="btn btn-success mb-3">Ajouter un Stock</button>
+
+<!-- Table to display existing stocks -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Medicament</th>
+            <th>Quantité</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stock in Model.Stocks)
+        {
+            <tr>
+                <td>@stock.Medicament.Nom</td>
+                <td>@stock.Quantite</td>
+                <td>
+                    <!-- Delete Form -->
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@stock.Id" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+
+                    <!-- Edit Button -->
+                    <button class="btn btn-warning" onclick="showEditForm(@stock.Id, '@stock.Medicament.Nom', @stock.Quantite)">
+                        Modifier
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Hidden Form for adding a new stock -->
+<div id="addStockForm" style="display:none; margin-top: 20px;">
+    <h3>Ajouter un Stock</h3>
+    <form method="post">
+        <div class="form-group">
+            <label for="MedicamentId">Médicament:</label>
+            <select id="MedicamentId" name="medicamentId" class="form-control" required>
+                <option value="" disabled selected>-- Sélectionnez un médicament --</option>
+                @foreach (var med in Model.Medications)
+                {
+                    <option value="@med.Id">@med.Nom</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="Quantite">Quantité:</label>
+            <input type="number" id="Quantite" name="quantity" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Ajouter au Stock</button>
+    </form>
+</div>
+
+<!-- Hidden Form for editing an existing stock -->
+<div id="editStockForm" style="display:none; margin-top: 20px;">
+    <h3>Modifier le Stock</h3>
+    <form method="post" asp-page-handler="Update">
+        <input type="hidden" id="editStockId" name="id" />
+        <div class="form-group">
+            <label for="editMedicament">Médicament:</label>
+            <input type="text" id="editMedicament" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+            <label for="editQuantite">Quantité:</label>
+            <input type="number" id="editQuantite" name="quantity" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Sauvegarder les modifications</button>
+        <button type="button" class="btn btn-secondary mt-3" onclick="hideEditForm()">Annuler</button>
+    </form>
+</div>
+
+<!-- JavaScript -->
+<script>
+    // Toggle the add stock form
+    document.getElementById("addStockButton").addEventListener("click", function () {
+        const form = document.getElementById("addStockForm");
+        form.style.display = form.style.display === "none" ? "block" : "none";
+    });
+
+    // Show the edit stock form with pre-filled data
+    function showEditForm(id, medicamentName, quantity) {
+        document.getElementById("editStockId").value = id;
+        document.getElementById("editMedicament").value = medicamentName;
+        document.getElementById("editQuantite").value = quantity;
+
+        // Show the edit stock form
+        document.getElementById("editStockForm").style.display = "block";
+    }
+
+    // Hide the edit stock form
+    function hideEditForm() {
+        document.getElementById("editStockForm").style.display = "none";
+    }
+</script>

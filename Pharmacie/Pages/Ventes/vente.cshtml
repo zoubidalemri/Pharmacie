@@ -1,73 +1,81 @@
 ﻿@page
-@model Pharmacie.Pages.Ventes.VenteModel
+@model Pharmacie.Pages.Ventes.venteModel
 
-@{
-    ViewData["Title"] = "Gestion des Ventes";
+<h2> Ventes</h2>
+
+<hr />
+<!-- Search Form -->
+<div id="addForm" style="margin-top:20px;">
+    <h3>Ajouter une vente</h3>
+    <form method="post" asp-page-handler="Ajouter">
+        <input type="hidden" id="addPrixBr" name="PrixBr" />
+
+        <div class="form-group">
+            <label for="addDate">Date</label>
+            <input type="date" id="addDate" name="Date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="form-group">
+            <label for="addMedicament">Médicament</label>
+            <select id="addMedicament" name="MedicamentId" class="form-control" required>
+                <option value="" disabled selected>-- Sélectionnez un médicament --</option>
+                @foreach (var medicament in Model.Medications)
+                {
+                    <option value="@medicament.Id" data-prixbr="@medicament.PrixBr">@medicament.Nom</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="addQuantite">Quantité Vendue</label>
+            <input type="number" id="addQuantite" name="QuantiteVendu" class="form-control" min="1" required />
+        </div>
+
+        <div class="form-group">
+            <label for="addMontant">Montant</label>
+            <input type="number" id="addMontant" name="Montant" class="form-control" readonly />
+        </div>
+
+        <button type="submit" class="btn btn-success">Ajouter</button>
+    </form>
+</div>
+
+<!-- Error Message -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
 }
 
-<h2>Gestion des Ventes</h2>
-
-
-<!-- Form for Adding a New Sale -->
-<form asp-controller="Vente" asp-action="AddVente" method="post">
-    <div class="form-group">
-        <label for="Date">Date de la Vente:</label>
-        <input type="datetime-local" name="Date" id="Date" class="form-control" required />
-    </div>
-    <label for="MedicamentId">Médicament:</label>
-    <select id="MedicamentId" name="MedicamentId" class="form-control" required>
-        <option value="" disabled selected>-- Sélectionnez un médicament --</option>
-        @if (Model.Medications.Any())
-        {
-            @foreach (var med in Model.Medications)
-            {
-                <option value="@med.Id" data-prixbr="@med.PrixBr">@med.Nom</option>
-            }
-        }
-        else
-        {
-            <option value="">Aucun médicament disponible</option>
-        }
-    </select>
-
-    <label for="QuantiteVendu">Quantité Vendue:</label>
-    <input type="number" id="QuantiteVendu" name="QuantiteVendu" class="form-control" required />
-
-    <!-- Montant (calculated based on QuantiteVendu and Medicament) -->
-    <label for="Montant">Montant:</label>
-    <input type="number" id="Montant" name="Montant" class="form-control" readonly />
-
-   
-    
-
-    <button type="submit" class="btn btn-primary mt-3">Ajouter Vente</button>
-</form>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const medicamentSelect = document.getElementById("MedicamentId");
-        const quantiteInput = document.getElementById("QuantiteVendu");
-        const montantInput = document.getElementById("Montant");
+    document.addEventListener('DOMContentLoaded', function () {
+        // Recalculate the Montant based on selected medication and quantity
+        function recalculateMontant() {
+            const quantiteInput = document.getElementById('addQuantite');
+            const montantInput = document.getElementById('addMontant');
+            const prixBr = parseFloat(document.getElementById('addPrixBr').value) || 0;
+            const quantite = parseFloat(quantiteInput.value) || 0;
 
-        function calculateMontant() {
-            const selectedOption = medicamentSelect.options[medicamentSelect.selectedIndex];
-            const prixBr = parseFloat(selectedOption.getAttribute("data-prixbr"));
-            const quantite = parseFloat(quantiteInput.value);
-
-            if (!isNaN(prixBr) && !isNaN(quantite)) {
-                montantInput.value = (prixBr * quantite).toFixed(2);
-            } else {
-                montantInput.value = '';
-            }
+            montantInput.value = (prixBr * quantite).toFixed(2);
         }
 
-        medicamentSelect.addEventListener("change", calculateMontant);
-        quantiteInput.addEventListener("input", calculateMontant);
+        // Get the PrixBr for the selected medication
+        function getSelectedMedicamentPrixBr() {
+            const select = document.getElementById('addMedicament');
+            const selectedOption = select.options[select.selectedIndex];
+            return parseFloat(selectedOption?.getAttribute('data-prixbr')) || 0;
+        }
+
+        // Attach event listeners for dynamic updates
+        document.getElementById('addMedicament').addEventListener('change', function () {
+            const prixBr = getSelectedMedicamentPrixBr();
+            document.getElementById('addPrixBr').value = prixBr;
+            recalculateMontant();
+        });
+
+        document.getElementById('addQuantite').addEventListener('input', recalculateMontant);
     });
 </script>
-
-
-
-
-
 
