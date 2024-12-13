@@ -11,6 +11,7 @@ using Pharmacie.Models;
         {
             _context = context;
         }
+    [Route("api/[controller]")]
     public IActionResult Indexx()
     {
         var medicaments = _context.Medicaments.ToList();
@@ -35,5 +36,18 @@ using Pharmacie.Models;
 
 
 
-}
+    [HttpGet("SearchMedicaments")]
+    public async Task<IActionResult> SearchMedicaments(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+            return Json(new List<string>());
 
+        var results = await _context.Medicaments
+            .Where(m => m.Nom.Contains(term))
+            .Select(m => m.Nom)
+            .Take(10) // Limiter le nombre de résultats pour éviter une surcharge
+            .ToListAsync();
+
+        return Json(results);
+    }
+}

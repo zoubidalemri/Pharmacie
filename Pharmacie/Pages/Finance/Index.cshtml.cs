@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-
-
 namespace Pharmacie.Pages.Finance
 {
     public class VenteParMois

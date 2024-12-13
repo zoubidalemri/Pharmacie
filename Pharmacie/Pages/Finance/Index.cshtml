@@ -6,10 +6,12 @@
 }
 
 <h1>Statistiques des Ventes</h1>
+
 <div>
     <a asp-page="/Finance/Historique" class="btn btn-primary">Voir l'Historique des Ventes</a>
 </div>
 
+<!-- Formulaire pour sélectionner le type de statistique -->
 <form method="post">
     <div>
         <label>
@@ -37,11 +39,13 @@
 
 <hr />
 
+<!-- Totaux des ventes -->
 <div>
     <h2>Total des ventes : @Model.TotalVentes Dhs</h2>
     <h2>Gains totaux : @Model.TotalGains Dhs</h2>
 </div>
 
+<!-- Tableau des ventes -->
 <table class="table">
     <thead>
         <tr>
@@ -74,30 +78,23 @@
         });
     });
 
-    // Ensure VentesParMois is properly serialized
     var ventesParMois = @Html.Raw(Json.Serialize(Model.VentesParMois));
 
-    console.log("VentesParMois data:", ventesParMois); // Debugging data
-
-    if (ventesParMois.length === 0) {
-        console.error("Aucune donnée disponible pour afficher le graphique.");
-    }
-
-    var ctx = document.getElementById('salesChart').getContext('2d');
     if (ventesParMois.length > 0) {
+        var ctx = document.getElementById('salesChart').getContext('2d');
         var salesChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ventesParMois.map(v => v.Mois || 'N/A'),
+                labels: ventesParMois.map(v => v.Mois),
                 datasets: [{
                     label: 'Ventes Totales',
-                    data: ventesParMois.map(v => v.Montant || 0),
+                    data: ventesParMois.map(v => v.Montant),
                     backgroundColor: 'rgba(75, 192, 192, 0.5)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }, {
                     label: 'Gains Totaux',
-                    data: ventesParMois.map(v => v.Gain || 0),
+                    data: ventesParMois.map(v => v.Gain),
                     backgroundColor: 'rgba(255, 99, 132, 0.5)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
@@ -122,6 +119,8 @@
             }
         });
     } else {
-        ctx.fillText("Aucune donnée pour afficher le graphique.", 100, 100);
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        ctx.font = "16px Arial";
+        ctx.fillText("Aucune donnée pour afficher le graphique.", 50, 100);
     }
 </script>

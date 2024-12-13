@@ -1,34 +1,75 @@
-ï»¿@page
+@page
 @model Pharmacie.Pages.Stocks.IndexModel
 
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Home</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Store</strong></div>
+        </div>
+    </div>
+</div>
 <h1>Stocks</h1>
 
 <!-- Button to toggle visibility of the add stock form -->
 <button type="button" id="addStockButton" class="btn btn-success mb-3">Ajouter un Stock</button>
 
+<!-- Filters for price and sorting -->
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Filter by Price -->
+            <div class="col-lg-6">
+                <h3 class="mb-3 h6 text-uppercase text-black d-block">Filter by Price</h3>
+                <!-- Slider Range -->
+                <input type="range" id="sliderMin" class="border-primary" min="0" max="50000" value="0" step="1">
+                <input type="range" id="sliderMax" class="border-primary" min="0" max="50000" value="50000" step="1" >
+                <input type="text" name="amount" id="amount" class="form-control border-0 pl-0 bg-white" disabled />
+                <input type="hidden" id="minPrice" name="minPrice" />
+                <input type="hidden" id="maxPrice" name="maxPrice" />
+            </div>
+            <!-- Filter & Sort -->
+            <div class="col-lg-6 text-lg-right">
+                <h3 class="mb-3 h6 text-uppercase text-black d-block">Filter</h3>
+                <button type="button" class="btn btn-primary btn-md dropdown-toggle px-4" id="dropdownMenuReference" data-toggle="dropdown">Filtrer par</button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
+                    <a class="dropdown-item filter-option" href="#" data-filter="relevance">Relevance</a>
+                    <a class="dropdown-item filter-option" href="#" data-filter="nameAZ">Nom A-Z</a>
+                    <a class="dropdown-item filter-option" href="#" data-filter="nameZA">Nom Z-A</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item filter-option" href="#" data-filter="priceLowHigh">Prix ASC</a>
+                    <a class="dropdown-item filter-option" href="#" data-filter="priceHighLow">Prix Dsc</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Table to display existing stocks -->
-<table class="table">
+<table class="table" id="stockTable">
     <thead>
         <tr>
             <th>Medicament</th>
-            <th>QuantitÃ©</th>
+            <th>Prix</th>
+            <th>Quantité</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var stock in Model.Stocks)
         {
-            <tr>
+            <tr data-price="@stock.Medicament.PrixBr" data-name="@stock.Medicament.Nom">
                 <td>@stock.Medicament.Nom</td>
+                <td>@stock.Medicament.PrixBr</td>
                 <td>@stock.Quantite</td>
                 <td>
                     <!-- Delete Form -->
                     <form method="post" asp-page-handler="Delete" asp-route-id="@stock.Id" style="display: inline;">
-                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                        <button type="submit" class="btn btn-secondary mt-3" style="background-color: red; color: white;">Supprimer</button>
                     </form>
 
+
                     <!-- Edit Button -->
-                    <button class="btn btn-warning" onclick="showEditForm(@stock.Id, '@stock.Medicament.Nom', @stock.Quantite)">
+                    <button class="btn btn-secondary mt-3" onclick="showEditForm(@stock.Id, '@stock.Medicament.Nom', @stock.Quantite)">
                         Modifier
                     </button>
                 </td>
@@ -42,9 +83,9 @@
     <h3>Ajouter un Stock</h3>
     <form method="post">
         <div class="form-group">
-            <label for="MedicamentId">MÃ©dicament:</label>
+            <label for="MedicamentId">Médicament:</label>
             <select id="MedicamentId" name="medicamentId" class="form-control" required>
-                <option value="" disabled selected>-- SÃ©lectionnez un mÃ©dicament --</option>
+                <option value="" disabled selected>-- Sélectionnez un médicament --</option>
                 @foreach (var med in Model.Medications)
                 {
                     <option value="@med.Id">@med.Nom</option>
@@ -53,7 +94,7 @@
         </div>
 
         <div class="form-group">
-            <label for="Quantite">QuantitÃ©:</label>
+            <label for="Quantite">Quantité:</label>
             <input type="number" id="Quantite" name="quantity" class="form-control" required />
         </div>
 
@@ -67,12 +108,12 @@
     <form method="post" asp-page-handler="Update">
         <input type="hidden" id="editStockId" name="id" />
         <div class="form-group">
-            <label for="editMedicament">MÃ©dicament:</label>
+            <label for="editMedicament">Médicament:</label>
             <input type="text" id="editMedicament" class="form-control" readonly />
         </div>
 
         <div class="form-group">
-            <label for="editQuantite">QuantitÃ©:</label>
+            <label for="editQuantite">Quantité:</label>
             <input type="number" id="editQuantite" name="quantity" class="form-control" required />
         </div>
 
@@ -81,7 +122,7 @@
     </form>
 </div>
 
-<!-- JavaScript -->
+<!-- JavaScript for handling forms and filters -->
 <script>
     // Toggle the add stock form
     document.getElementById("addStockButton").addEventListener("click", function () {
@@ -94,13 +135,86 @@
         document.getElementById("editStockId").value = id;
         document.getElementById("editMedicament").value = medicamentName;
         document.getElementById("editQuantite").value = quantity;
-
-        // Show the edit stock form
         document.getElementById("editStockForm").style.display = "block";
     }
 
     // Hide the edit stock form
     function hideEditForm() {
         document.getElementById("editStockForm").style.display = "none";
+    }
+
+    // Filter stocks by selected criteria
+    document.querySelectorAll('.filter-option').forEach(item => {
+        item.addEventListener('click', function () {
+            let filter = this.getAttribute('data-filter');
+            filterStocks(filter);
+        });
+    });
+
+    function filterStocks(filter) {
+        let table = document.getElementById("stockTable");
+        let rows = Array.from(table.getElementsByTagName("tr")).slice(1);  // Exclude header row
+
+        rows.sort((rowA, rowB) => {
+            let valA, valB;
+
+            switch (filter) {
+                case "nameAZ":
+                    valA = rowA.cells[0].innerText.toLowerCase();
+                    valB = rowB.cells[0].innerText.toLowerCase();
+                    break;
+                case "nameZA":
+                    valA = rowB.cells[0].innerText.toLowerCase();
+                    valB = rowA.cells[0].innerText.toLowerCase();
+                    break;
+                case "priceLowHigh":
+                    valA = parseFloat(rowA.getAttribute("data-price"));
+                    valB = parseFloat(rowB.getAttribute("data-price"));
+                    break;
+                case "priceHighLow":
+                    valA = parseFloat(rowB.getAttribute("data-price"));
+                    valB = parseFloat(rowA.getAttribute("data-price"));
+                    break;
+                default:  // Relevance (no sorting)
+                    return 0;
+            }
+
+            return valA < valB ? -1 : (valA > valB ? 1 : 0);
+        });
+
+        // Reorder rows
+        rows.forEach(row => table.appendChild(row));
+    }
+
+    // Price Range Slider (Simple JavaScript)
+    document.addEventListener("DOMContentLoaded", function () {
+        const minPriceInput = document.getElementById("minPrice");
+        const maxPriceInput = document.getElementById("maxPrice");
+        const amountInput = document.getElementById("amount");
+
+        const sliderMin = document.getElementById("sliderMin");
+        const sliderMax = document.getElementById("sliderMax");
+
+        sliderMin.addEventListener("input", updatePriceRange);
+        sliderMax.addEventListener("input", updatePriceRange);
+
+        function updatePriceRange() {
+            const min = sliderMin.value;
+            const max = sliderMax.value;
+
+            minPriceInput.value = min;
+            maxPriceInput.value = max;
+            amountInput.value = "Prix: " + min + " - " + max;
+
+            filterStocksByPrice(min, max);
+        }
+    });
+
+    function filterStocksByPrice(min, max) {
+        const rows = document.querySelectorAll("#stockTable tbody tr");
+        rows.forEach(row => {
+            const price = parseFloat(row.getAttribute("data-price"));
+            row.style.display = (price >= min && price <= max) ? "" : "none";
+        });
     }
 </script>

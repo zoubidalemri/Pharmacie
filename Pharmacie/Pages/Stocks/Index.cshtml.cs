@@ -17,6 +17,9 @@ namespace Pharmacie.Pages.Stocks
         {
             _context = context;
         }
+     
+     
+
 
         // Properties to hold the list of stocks and medications
         public List<Stock> Stocks { get; set; }

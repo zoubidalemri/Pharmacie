@@ -29,6 +29,7 @@ namespace Pharmacie.Pages.Ventes
             Medications = await _context.Set<Medication>().ToListAsync();
         }
 
+
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)

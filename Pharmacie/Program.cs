@@ -54,10 +54,7 @@ app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Vente}/{action=vente}/{id?}");
-app.MapGet("/", async context =>
-{
-    context.Response.Redirect("/Ventes/vente");
-});
+
 
 app.Run();
 

@@ -7,129 +7,161 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Pharmacie.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/base/jquery-ui.min.css" />
-    
 
+    <title>Pharmacie MHz &mdash; Colorlib Template</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="fonts/icomoon/style.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/fonts/flaticon/font/flaticon.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/magnific-popup.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/jquery-ui.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css" asp-append-version="true">
+
+    <link rel="stylesheet" href="css/aos.css">
+    <link rel="stylesheet" href="css/style.css">
 
 </head>
+
 <body>
-    <header>
-        <!-- Navigation Bar -->
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Ventes/vente">Pharmacie</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Ventes/vente">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <!-- Search Bar -->
-                    <form method="get" action="@Url.Page("/Medications/Search")">
-                        <input type="text" id="medicationSearch" name="query" placeholder="Rechercher un médicament" />
-                        <div id="autocompleteResults" class="autocomplete-results"></div>
-                        <button type="submit">Rechercher</button>
+
+    <div class="site-wrap">
+
+        <div class="site-navbar py-2">
+
+            <div class="search-wrap">
+                <div class="container">
+                    <a href="#" class="search-close js-search-close"><span class="icon-close2"></span></a>
+                    <form action="#" method="get" autocomplete="off">
+                        <input type="text" id="search-bar" class="form-control" placeholder="Rechercher un médicament..." />
+                        <div id="suggestions" class="list-group"></div>
                     </form>
+                </div>
+            </div>
 
-                   
-
-
-
-
-
-                    <!-- Dropdown Menu -->
-                    <div class="dropdown ms-3">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="optionsMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            Options
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="optionsMenu">
-                            <li><a class="dropdown-item" asp-area="" asp-page="/Stocks/index">Gérer stock</a></li>
-                            <li><a class="dropdown-item" asp-area="" asp-page="/Medications/Indexx">Gérer médicaments</a></li>
-                            <li><a class="dropdown-item" asp-area="" asp-page="/Finance/Indexf">Gérer finance</a></li>
-                        </ul>
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="logo">
+                        <div class="site-logo">
+                            <a href="index.html" class="js-logo-clone"><strong class="text-primary">Pharma</strong>tive</a>
+                        </div>
+                    </div>
+                    <div class="main-nav d-none d-lg-block">
+                        <nav class="site-navigation text-right text-md-center" role="navigation">
+                            <ul class="site-menu js-clone-nav d-none d-lg-block">
+                                <li class="active"><a href="/index">Acceuil</a></li>
+                                <li class="has-children">
+                                    <a href="/">Gerer </a>
+                                    <ul class="dropdown">
+                                        <li><a href="/Ventes">Vente</a></li>
+                                        <li><a href="/Medications">Medicament</a></li>
+                                        <li><a href="/Stocks">Stock</a></li>
+                                        <li><a href="/Finance">Finance</a></li>
+                                        <li><a href="/Historique">Historique</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="about.html" class="scroll-link" data-target="#footer">A propos</a></li>
+                                <li><a href="contact.html" class="scroll-link" data-target="#footer">Contact</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="icons">
+                        <a href="#" class="icons-btn d-inline-block js-search-open"><span class="icon-search"></span></a>
+                        <a href="cart.html" class="icons-btn d-inline-block bag">
+                            <span class="icon-shopping-bag"></span>
+                            <span class="number">2</span>
+                        </a>
+                        <a href="#" class="site-menu-toggle js-menu-toggle ml-3 d-inline-block d-lg-none">
+                            <span class="icon-menu"></span>
+                        </a>
                     </div>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <div id="autocompleteResults" class="autocomplete-results"></div>  <!-- Container for search results -->
-    <!-- Main Content -->
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <!-- Footer -->
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Pharmacie - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
-    </footer>
 
-    <!-- Scripts -->
-   
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+        <!-- Main Content -->
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+        <!-- Footer -->
+        <footer id="footer" class="site-footer bg-light">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4 mb-lg-0">
+                        <div class="block-7">
+                            <h3 class="footer-heading mb-4">About <strong class="text-primary">Pharmative</strong></h3>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eius quae reiciendis distinctio voluptates
+                                sed dolorum excepturi iure eaque, aut unde.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 mx-auto mb-5 mb-lg-0">
+                        <h3 class="footer-heading mb-4">Navigation</h3>
+                        <ul class="list-unstyled">
+                            <li><a href="#">Supplements</a></li>
+                            <li><a href="#">Vitamins</a></li>
+                            <li><a href="#">Diet &amp; Nutrition</a></li>
+                            <li><a href="#">Tea &amp; Coffee</a></li>
+                        </ul>
+                    </div>
 
-    <script>
-                                             $(document).ready(function() {
-            $('#medicationSearch').autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: '/Medications/Autocomplete',
-                        data: { term: request.term },
-                        success: function(data) {
-                            var resultsContainer = $('#autocompleteResults');
-                            resultsContainer.empty();  // Clear previous results
-                            if (data.length) {
-                                data.forEach(function(item) {
-                                    resultsContainer.append('<div class="autocomplete-item">' + item + '</div>');
-                                });
-                                resultsContainer.show();  // Show the dropdown
-                            } else {
-                                resultsContainer.hide();  // Hide if no results
-                            }
-                        }
-                    });
-                },
-                minLength: 2,  // Start suggesting after typing 2 characters
-                select: function(event, ui) {
-                    // This will still be triggered when an item is selected by arrow keys
-                    $('#medicationSearch').val(ui.item.value);
-                    $('#autocompleteResults').hide();  // Hide the dropdown after selection
-                    return false;  // Prevent the default behavior
-                }
+                    <div class="col-md-6 col-lg-3">
+                        <div class="block-5 mb-5">
+                            <h3 class="footer-heading mb-4">Contact Info</h3>
+                            <ul class="list-unstyled">
+                                <li class="address">203 Fake St. Mountain View, San Francisco, California, USA</li>
+                                <li class="phone"><a href="tel://23923929210">+2 392 3929 210</a></li>
+                                <li class="email">emailaddress@domain.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row pt-5 mt-5 text-center">
+                    <div class="col-md-12">
+                        <p>
+                            Copyright &copy;
+                            <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made
+                            with <i class="icon-heart text-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank"
+                                                                                                 class="text-primary">Colorlib</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script>
+            $(document).ready(function () {
+                $(".scroll-link").on("click", function (e) {
+                    e.preventDefault();
+                    var target = $($(this).attr("data-target"));
+                    $("html, body").animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                });
             });
+        </script>
 
-            // Manually handle the click event on the dropdown items
-            $(document).on('click', '#autocompleteResults .autocomplete-item', function() {
-                var selectedText = $(this).text();
-                $('#medicationSearch').val(selectedText);  // Fill the input with the selected suggestion
-                $('#autocompleteResults').hide();  // Hide the dropdown after selection
-            });
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/jquery-3.3.1.min.js" asp-append-version="true"></script>
+        <script src="~/js/jquery-ui.js" asp-append-version="true"></script>
+        <script src="~/js/popper.min.js" asp-append-version="true"></script>
+        <script src="~/js/bootstrap.min.js" asp-append-version="true"></script>
+        <script src="~/js/owl.carousel.min.js" asp-append-version="true"></script>
+        <script src="~/js/jquery.magnific-popup.min.js" asp-append-version="true"></script>
+        <script src="~/js/aos.js" asp-append-version="true"></script>
 
-            // Hide the suggestions dropdown when clicking outside
-            $(document).click(function(e) {
-                if (!$(e.target).closest('#medicationSearch').length) {
-                    $('#autocompleteResults').hide();  // Hide the dropdown
-                }
-            });
-        });
-
-
-
-    </script>
+        <script src="js/main.js"></script>
+        @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,105 @@
+﻿@page
+@model Pharmacie.Pages.Ventes.venteModel
+<div class="site-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 mr-auto">
+                <div class="border text-center">
+                    <img src="images/product_07_large.png" alt="Image" class="img-fluid p-5" id="medicationImage">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h2 class="text-black" id="medicationName">Sélectionnez un médicament</h2>
+                <p id="medicationDescription"></p>
+               
+                <p id="medicationNewPrice"></p>
+
+                <!-- Select Medicament -->
+                <form method="post">
+                    <div class="form-group">
+                        <label for="addMedicament">Sélectionnez un médicament</label>
+                        <select id="addMedicament" name="Vente.MedicamentId" class="form-control" required>
+                            <option value="" disabled selected>-- Sélectionnez un médicament --</option>
+                            @foreach (var medicament in Model.Medications)
+                            {
+                                <option value="@medicament.Id" data-prixbr="@medicament.PrixBr"
+                                        data-nom="@medicament.Nom"
+                                        data-description="@medicament.Presentation"
+                                
+                                        data-nouveauprix="@medicament.PrixBr">
+                                    @medicament.Nom
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                   
+
+                    <!-- Quantité -->
+                    <div class="form-group">
+                        <label for="quantityInput">Quantité</label>
+                        <input type="number" id="quantityInput" name="Vente.QuantiteVendu" class="form-control" value="1" min="1" required>
+                    </div>
+
+                    <p><strong>Total : </strong><span id="totalPrice">0</span> <span class="text-primary h4">DH</span></p>
+
+                    <!-- Soumission -->
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+
+                    <!-- Afficher le message d'erreur -->
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+                    }
+                </form>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const medicamentSelect = document.getElementById('addMedicament');
+                        const quantityInput = document.getElementById('quantityInput');
+                        const totalPriceElement = document.getElementById('totalPrice');
+                        const medicationImage = document.getElementById('medicationImage');
+                        const medicationName = document.getElementById('medicationName');
+                        const medicationDescription = document.getElementById('medicationDescription');
+                        const medicationOldPrice = document.getElementById('medicationOldPrice');
+                        const medicationNewPrice = document.getElementById('medicationNewPrice');
+
+                        function updateMedicationInfo() {
+                            const selectedOption = medicamentSelect.options[medicamentSelect.selectedIndex];
+
+                            if (selectedOption) {
+                                const prixUnitaire = parseFloat(selectedOption.getAttribute('data-prixbr')) || 0;
+                                const quantite = parseInt(quantityInput.value) || 1;
+                                const total = prixUnitaire * quantite;
+                                totalPriceElement.textContent = total.toFixed(2);
+
+                                // Mise à jour des informations du médicament
+                                medicationImage.src = selectedOption.getAttribute('data-image') || 'images/default_medicine.png';
+                                medicationName.textContent = selectedOption.getAttribute('data-nom') || 'Sélectionnez un médicament';
+                                medicationDescription.textContent = selectedOption.getAttribute('data-description') || '';
+
+                                const oldPrice = selectedOption.getAttribute('data-ancienprix');
+                                medicationOldPrice.innerHTML = oldPrice ? `<del>${oldPrice} DH</del>` : '';
+
+                                const newPrice = selectedOption.getAttribute('data-nouveauprix');
+                                medicationNewPrice.textContent = newPrice ? `${newPrice} DH` : '';
+                            }
+                        }
+
+                        function updateTotalPrice() {
+                            const selectedOption = medicamentSelect.options[medicamentSelect.selectedIndex];
+                            const prixUnitaire = parseFloat(selectedOption ? selectedOption.getAttribute('data-prixbr') : 0) || 0;
+                            const quantite = parseInt(quantityInput.value) || 1;
+                            const total = prixUnitaire * quantite;
+                            totalPriceElement.textContent = total.toFixed(2);
+                        }
+
+                        medicamentSelect.addEventListener('change', updateMedicationInfo);
+                        quantityInput.addEventListener('input', updateTotalPrice);
+
+                        // Initialisation
+                        updateMedicationInfo();
+                    });
+                </script>
+
+
