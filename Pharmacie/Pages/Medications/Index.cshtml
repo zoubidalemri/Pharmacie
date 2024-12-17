@@ -1,6 +1,12 @@
 ﻿@page
 @model Pharmacie.Pages.Medications.IndexxModel
-
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Acceuil</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Medicament</strong></div>
+        </div>
+    </div>
+</div>
 <h2>Liste des Médicaments</h2>
 
 <!-- Bouton Ajouter Médicament -->
@@ -14,6 +20,7 @@
 </div>
 
 <!-- Liste des médicaments -->
+<div class="table-responsive">
 <table id="medicationTable" class="table">
     <thead>
         <tr>
@@ -43,7 +50,7 @@
                 <td>@medicament.UniteDosage1</td>
                 <td>@medicament.Forme</td>
                 <td>@medicament.Presentation</td>
-                <td>@(medicament.PrixBr?.ToString("C") ?? "0.00")</td>
+                <td>@medicament.PrixBr </td>
                 <td>@medicament.PPV</td>
                 <td>@medicament.PH</td>
                 <td>@medicament.TauxRemboursement</td>
@@ -77,6 +84,7 @@
         }
     </tbody>
 </table>
+</div>
 
 <!-- Formulaire d'ajout ou d'édition -->
 <div id="formSection">
@@ -180,7 +188,7 @@
     function confirmDelete(medicamentId) {
         if (confirm("Êtes-vous sûr de vouloir supprimer ce médicament ?")) {
             // Si l'utilisateur confirme, redirige vers l'URL de suppression
-            window.location.href = '/Medications/Indexx?deleteId=' + medicamentId;
+            window.location.href = '/Medications?deleteId=' + medicamentId;
         }
     }
 

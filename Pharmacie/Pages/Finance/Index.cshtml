@@ -1,116 +1,71 @@
 ﻿@page
 @model Pharmacie.Pages.Finance.IndexfModel
-
 @{
-    ViewData["Title"] = "Statistiques des Ventes";
+    Layout = "_Layout";
 }
-
-<h1>Statistiques des Ventes</h1>
-
-<div>
-    <a asp-page="/Finance/Historique" class="btn btn-primary">Voir l'Historique des Ventes</a>
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Acceuil</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Finance</strong></div>
+        </div>
+    </div>
 </div>
 
-<!-- Formulaire pour sélectionner le type de statistique -->
+<h2>Statistiques des Ventes</h2>
+<div>
+<a href="@Url.Page("/Historique/index")" class="btn btn-secondary mt-3">Voir Historique</a>
+</div>
+
 <form method="post">
-    <div>
-        <label>
-            <input type="radio" name="TypeStatistique" value="mois" checked="checked" />
-            Par mois
-        </label>
-        <label>
-            <input type="radio" name="TypeStatistique" value="annee" />
-            Par année
-        </label>
+    <div class="form-group">
+        <label for="TypeStatistique">Type de Statistique</label>
+        <select class="form-control" id="TypeStatistique" name="TypeStatistique">
+            <option value="mois">Par Mois</option>
+            <option value="annee">Par Année</option>
+        </select>
     </div>
 
-    <div id="monthSelection" style="display: block;">
-        <label for="MoisAnnee">Mois/Année :</label>
-        <input type="text" id="MoisAnnee" name="MoisAnnee" placeholder="MM/yyyy" />
+    <div class="form-group">
+        <label for="MoisAnnee">Mois/Année</label>
+        <input type="text" class="form-control" id="MoisAnnee" name="MoisAnnee" value="@Model.MoisAnnee" />
     </div>
 
-    <div id="yearSelection" style="display: none;">
-        <label for="Annee">Année :</label>
-        <input type="number" id="Annee" name="Annee" min="2000" max="2100" />
+    <div class="form-group">
+        <label for="Annee">Année</label>
+        <input type="number" class="form-control" id="Annee" name="Annee" value="@Model.Annee" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Afficher les statistiques</button>
+    <button type="submit" class="btn btn-primary">Afficher</button>
 </form>
 
-<hr />
+<h3>Total des Ventes: @Model.TotalVentes</h3>
+<h3>Total des Gains: @Model.TotalGains</h3>
 
-<!-- Totaux des ventes -->
-<div>
-    <h2>Total des ventes : @Model.TotalVentes Dhs</h2>
-    <h2>Gains totaux : @Model.TotalGains Dhs</h2>
-</div>
+<canvas id="venteChart" width="400" height="200"></canvas>
 
-<!-- Tableau des ventes -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Période</th>
-            <th>Montant</th>
-            <th>Gain</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var vente in Model.VentesParMois)
-        {
-            <tr>
-                <td>@vente.Mois</td>
-                <td>@vente.Montant</td>
-                <td>@vente.Gain</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- Graphique des ventes -->
-<canvas id="salesChart" width="400" height="200"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.querySelectorAll("input[name='TypeStatistique']").forEach(radio => {
-        radio.addEventListener('change', function () {
-            document.getElementById('monthSelection').style.display = this.value === 'mois' ? 'block' : 'none';
-            document.getElementById('yearSelection').style.display = this.value === 'annee' ? 'block' : 'none';
-        });
-    });
-
-    var ventesParMois = @Html.Raw(Json.Serialize(Model.VentesParMois));
-
-    if (ventesParMois.length > 0) {
-        var ctx = document.getElementById('salesChart').getContext('2d');
-        var salesChart = new Chart(ctx, {
-            type: 'bar',
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('venteChart').getContext('2d');
+        var venteChart = new Chart(ctx, {
+            type: 'bar',  // Type de graphique : barres
             data: {
-                labels: ventesParMois.map(v => v.Mois),
+                labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.VentesParMois.Select(v => v.Mois))),
                 datasets: [{
-                    label: 'Ventes Totales',
-                    data: ventesParMois.map(v => v.Montant),
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                    label: 'Montant des Ventes',
+                    data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.VentesParMois.Select(v => v.Montant))),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }, {
-                    label: 'Gains Totaux',
-                    data: ventesParMois.map(v => v.Gain),
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    label: 'Gains',
+                    data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.VentesParMois.Select(v => v.Gain))),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]
             },
             options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw + ' Dhs';
-                            }
-                        }
-                    }
-                },
                 scales: {
                     y: {
                         beginAtZero: true
@@ -118,9 +73,5 @@
                 }
             }
         });
-    } else {
-        var ctx = document.getElementById('salesChart').getContext('2d');
-        ctx.font = "16px Arial";
-        ctx.fillText("Aucune donnée pour afficher le graphique.", 50, 100);
-    }
-</script>
+    </script>
+}

@@ -43,9 +43,7 @@ namespace Pharmacie.Models
         // Nullable foreign key reference
         public int? MedicamentId { get; set; }
         public Medication? Medicament { get; set; }
-        public Vente()
-        {
-        }
+       
     }
 
    

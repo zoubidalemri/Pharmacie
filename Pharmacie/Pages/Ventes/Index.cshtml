@@ -1,5 +1,12 @@
 ﻿@page
 @model Pharmacie.Pages.Ventes.venteModel
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Acceuil</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Vente</strong></div>
+        </div>
+    </div>
+</div>
 <div class="site-section">
     <div class="container">
         <div class="row">
@@ -42,6 +49,7 @@
                     </div>
 
                     <p><strong>Total : </strong><span id="totalPrice">0</span> <span class="text-primary h4">DH</span></p>
+                    <input type="hidden" id="totalAmount" name="Vente.Montant" value="0">
 
                     <!-- Soumission -->
                     <button type="submit" class="btn btn-primary">Ajouter</button>
@@ -72,6 +80,7 @@
                                 const quantite = parseInt(quantityInput.value) || 1;
                                 const total = prixUnitaire * quantite;
                                 totalPriceElement.textContent = total.toFixed(2);
+                                totalAmountInput.value = total.toFixed(2);
 
                                 // Mise à jour des informations du médicament
                                 medicationImage.src = selectedOption.getAttribute('data-image') || 'images/default_medicine.png';
@@ -92,6 +101,7 @@
                             const quantite = parseInt(quantityInput.value) || 1;
                             const total = prixUnitaire * quantite;
                             totalPriceElement.textContent = total.toFixed(2);
+                              totalAmountInput.value = total.toFixed(2);
                         }
 
                         medicamentSelect.addEventListener('change', updateMedicationInfo);

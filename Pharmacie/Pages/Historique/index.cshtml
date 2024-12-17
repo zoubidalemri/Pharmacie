@@ -1,29 +1,39 @@
 ﻿@page
 @model Pharmacie.Pages.Ventes.venteModel
-
-<h2> Ventes</h2>
+<div class="bg-light py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0"><a href="index.html">Acceuil</a> <span class="mx-2 mb-0">/</span> <strong class="text-black">Historique</strong></div>
+        </div>
+    </div>
+</div>
+<h2> Historique</h2>
 
 <hr />
 <!-- Search Form -->
-<form method="get" asp-page-handler="Filter" class="mb-3">
+<form method="get">
+
+
+    <!-- Dropdown for medications -->
     <div class="form-group">
         <label for="medicamentId">Medicament</label>
         <select id="medicamentId" name="medicamentId" class="form-control">
-            <option value="">-- Rechercher un medicament --</option>
+            <option value="">-- Select a Medicament --</option>
             @foreach (var medicament in Model.Medications)
             {
                 <option value="@medicament.Id">@medicament.Nom</option>
             }
         </select>
     </div>
+
     <div class="form-group">
-        <label for="venteDate">Date</label>
-        <input type="date" id="venteDate" name="venteDate" class="form-control" value="@Request.Query["venteDate"]" />
+        <label for="venteDate">Vente Date</label>
+        <input type="date" id="venteDate" name="venteDate" class="form-control" />
     </div>
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Rechercher</button>
-    </div>
+
+    <button type="submit" class="btn btn-primary">Search</button>
 </form>
+
 
 <!-- Table for Viewing Sales -->
 <table class="table table-bordered">
@@ -55,7 +65,7 @@
                                 onclick="showEditForm(@vente.Id, '@vente.Date.ToString("yyyy-MM-dd")', '@vente.MedicamentId', @vente.QuantiteVendu, @vente.Montant)">
                             Modifier
                         </button>
-                        <form method="post" asp-page-handler="Supprimer" asp-route-id="@vente.Id">
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@vente.Id" style="display:inline;">
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette vente ?')">Supprimer</button>
                         </form>
                     </td>
@@ -70,7 +80,12 @@
         }
     </tbody>
 </table>
-
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
 <!-- Formulaire de modification -->
 <div id="editForm" style="display:none; margin-top:20px;">
     <h3>Modifier la vente</h3>
@@ -105,55 +120,64 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Show the edit form with pre-filled data
-        function showEditForm(id, date, medicamentId, quantiteVendu, montant) {
-            document.getElementById('editId').value = id;
-            document.getElementById('editDate').value = date; // Assume ISO format
-            document.getElementById('editMedicament').value = medicamentId;
-            document.getElementById('editQuantite').value = quantiteVendu;
-            document.getElementById('editMontant').value = montant;
+    function showEditForm(id, date, medicamentId, quantiteVendu, montant) {
+        console.log('Date reçue:', date); // Debug: Affichez la date reçue
+        document.getElementById('editId').value = id;
 
-            const prixBr = getSelectedMedicamentPrixBr();
-            document.getElementById('editPrixBr').value = prixBr;
+        // If the date passed is not in the correct format, convert it to ISO format
+        const isoDate = formatDateToISO(date);
+        console.log('Date formatée:', isoDate); // Debug: Vérifiez la date après conversion
+        document.getElementById('editDate').value = isoDate;  // Assign to input field
 
-            document.getElementById('editForm').style.display = 'block';
-            window.scrollTo(0, document.getElementById('editForm').offsetTop);
+        document.getElementById('editMedicament').value = medicamentId;
+        document.getElementById('editQuantite').value = quantiteVendu;
+        document.getElementById('editMontant').value = montant;
+
+        // Set the PrixBr value based on selected medicament
+        const prixBr = getSelectedMedicamentPrixBr();
+        document.getElementById('editPrixBr').value = prixBr;
+
+        // Show the edit form
+        document.getElementById('editForm').style.display = 'block';
+        window.scrollTo(0, document.getElementById('editForm').offsetTop);
+    }
+
+    function hideEditForm() {
+        document.getElementById('editForm').style.display = 'none';
+    }
+
+    function recalculateMontant() {
+        const quantiteInput = document.getElementById('editQuantite');
+        const montantInput = document.getElementById('editMontant');
+        const prixBr = parseFloat(document.getElementById('editPrixBr').value);
+        const quantite = parseFloat(quantiteInput.value);
+
+        if (!isNaN(prixBr) && !isNaN(quantite)) {
+            montantInput.value = (prixBr * quantite); // Calculate and display montant with 2 decimals
+        } else {
+            montantInput.value = ''; // Clear montant if input is invalid
         }
+    }
 
-        // Hide the edit form
-        function hideEditForm() {
-            document.getElementById('editForm').style.display = 'none';
-        }
+    function getSelectedMedicamentPrixBr() {
+        const select = document.getElementById('editMedicament');
+        const selectedOption = select.options[select.selectedIndex];
+        return parseFloat(selectedOption.getAttribute('data-prixbr')) || 0; // Return 0 if not defined
+    }
 
-        // Recalculate the Montant based on selected medication and quantity
-        function recalculateMontant() {
-            const quantiteInput = document.getElementById('editQuantite');
-            const montantInput = document.getElementById('editMontant');
-            const prixBr = parseFloat(document.getElementById('editPrixBr').value) || 0;
-            const quantite = parseFloat(quantiteInput.value) || 0;
-
-            montantInput.value = (prixBr * quantite).toFixed(2);
-        }
-
-        // Get the PrixBr for the selected medication
-        function getSelectedMedicamentPrixBr() {
-            const select = document.getElementById('editMedicament');
-            const selectedOption = select.options[select.selectedIndex];
-            return parseFloat(selectedOption?.getAttribute('data-prixbr')) || 0;
-        }
-
-        // Attach event listeners
-        document.getElementById('editMedicament').addEventListener('change', function () {
-            const prixBr = getSelectedMedicamentPrixBr();
-            document.getElementById('editPrixBr').value = prixBr;
-            recalculateMontant();
-        });
-
-        document.getElementById('editQuantite').addEventListener('input', recalculateMontant);
-
-        // Expose functions globally for inline onclick events
-        window.showEditForm = showEditForm;
-        window.hideEditForm = hideEditForm;
+    // Recalculate montant when medicament or quantity changes
+    document.getElementById('editMedicament').addEventListener('change', function () {
+        const prixBr = getSelectedMedicamentPrixBr();
+        document.getElementById('editPrixBr').value = prixBr;
+        recalculateMontant(); // Recalculate montant when medicament is changed
     });
+
+    document.getElementById('editQuantite').addEventListener('input', recalculateMontant);
+
+    // Function to convert a date in 'dd/MM/yyyy' format to ISO format 'yyyy-MM-dd'
+    function formatDateToISO(dateString) {
+        if (!dateString) return ''; // Return empty string if no date is provided
+        const parts = dateString.split('-'); // We use split here because it's in 'yyyy-MM-dd'
+        return parts[0] + '-' + parts[1] + '-' + parts[2]; // Return the date in ISO format (yyyy-MM-dd)
+    }
 </script>

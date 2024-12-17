@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Pharmacie.Data;
 using Pharmacie.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Pharmacie.Pages.Finance
@@ -39,12 +41,14 @@ namespace Pharmacie.Pages.Finance
 
         public async Task OnPostAsync()
         {
+            // Vérification de la statistique demandée et traitement
             if (TypeStatistique == "mois" && !string.IsNullOrEmpty(MoisAnnee))
             {
                 var parts = MoisAnnee.Split('/');
                 int mois = int.Parse(parts[0]);
                 int annee = int.Parse(parts[1]);
 
+                // Récupérer les ventes et gains par jour dans un mois donné
                 var ventes = await _context.Ventes
                     .Where(v => v.Date.Year == annee && v.Date.Month == mois)
                     .GroupBy(v => v.Date.Day)
@@ -56,6 +60,7 @@ namespace Pharmacie.Pages.Finance
                     })
                     .ToListAsync();
 
+                // Convertir les résultats pour les afficher dans le modèle
                 VentesParMois = ventes.Select(v => new VenteParMois
                 {
                     Mois = $"Jour {v.Jour}",
@@ -65,6 +70,7 @@ namespace Pharmacie.Pages.Finance
             }
             else if (TypeStatistique == "annee" && Annee.HasValue)
             {
+                // Récupérer les ventes et gains par mois dans une année donnée
                 var ventes = await _context.Ventes
                     .Where(v => v.Date.Year == Annee.Value)
                     .GroupBy(v => v.Date.Month)
@@ -76,6 +82,7 @@ namespace Pharmacie.Pages.Finance
                     })
                     .ToListAsync();
 
+                // Convertir les résultats pour les afficher dans le modèle
                 VentesParMois = ventes.Select(v => new VenteParMois
                 {
                     Mois = $"{v.Mois}/{Annee.Value}",
@@ -84,6 +91,7 @@ namespace Pharmacie.Pages.Finance
                 }).ToList();
             }
 
+            // Calculer les totaux des ventes et gains
             TotalVentes = VentesParMois.Sum(v => v.Montant);
             TotalGains = VentesParMois.Sum(v => v.Gain);
         }

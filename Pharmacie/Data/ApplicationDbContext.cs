@@ -15,10 +15,7 @@ namespace Pharmacie.Data
 
 
         public DbSet<Stock> Stocks { get; set; } = null!;
-        // Table for stock
-        // Table for sales
-
-        // This method is called when the model is being created
+   
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -29,11 +26,11 @@ namespace Pharmacie.Data
                 .HasKey(m => m.Id);
             modelBuilder.Entity<Vente>()
                 .ToTable("Ventes", "dbo")
-                .HasKey(m => m.Id);// Spécifie que 'Id' est la clé primaire
+                .HasKey(m => m.Id);
 
             modelBuilder.Entity<Vente>(entity =>
             {
-                // Préciser la précision et l'échelle pour 'Gain'
+               
                 entity.Property(v => v.Gain)
                       .HasPrecision(18, 4); // 18 chiffres au total, 4 après la virgule
 

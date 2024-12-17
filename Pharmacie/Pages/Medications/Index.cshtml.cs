@@ -29,7 +29,11 @@ namespace Pharmacie.Pages.Medications
             // Si un ID de modification est fourni, charger l'objet correspondant
             if (editId.HasValue)
             {
-                Medication = _context.Medicaments.Find(editId.Value) ?? new Medication();
+                Medication = _context.Medicaments.Find(editId.Value);
+            }
+            else
+            {
+                Medication = new Medication(); // Objet vide pour ajout
             }
 
             // Si un ID de suppression est fourni, supprimer l'objet correspondant
@@ -47,29 +51,42 @@ namespace Pharmacie.Pages.Medications
             }
         }
 
+       
+
         public IActionResult OnPost()
         {
-            if (!ModelState.IsValid)
+            if (Medication.Id > 0) // Modifier un médicament existant
             {
-                Medications = _context.Medicaments.ToList();
-                return Page();
-            }
+                var medicamentToUpdate = _context.Medicaments.Find(Medication.Id);
+                if (medicamentToUpdate != null)
+                {
+                    // Mettre à jour les champs avec les nouvelles valeurs du formulaire
+                    medicamentToUpdate.Code = Medication.Code;
+                    medicamentToUpdate.Nom = Medication.Nom;
+                    medicamentToUpdate.DCI1 = Medication.DCI1;
+                    medicamentToUpdate.Dosage1 = Medication.Dosage1;
+                    medicamentToUpdate.UniteDosage1 = Medication.UniteDosage1;
+                    medicamentToUpdate.Forme = Medication.Forme;
+                    medicamentToUpdate.Presentation = Medication.Presentation;
+                    medicamentToUpdate.PPV = Medication.PPV;
+                    medicamentToUpdate.PH = Medication.PH;
+                    medicamentToUpdate.PrixBr = Medication.PrixBr;
+                    medicamentToUpdate.PrincepsGenerique = Medication.PrincepsGenerique;
+                    medicamentToUpdate.TauxRemboursement = Medication.TauxRemboursement;
 
-            if (Medication.Id == 0)
+                    _context.SaveChanges();
+                }
+            }
+            else // Ajouter un nouveau médicament
             {
-                // Ajouter un nouveau médicament
                 _context.Medicaments.Add(Medication);
-            }
-            else
-            {
-                // Modifier un médicament existant
-                _context.Medicaments.Update(Medication);
+                _context.SaveChanges();
             }
 
-            _context.SaveChanges();
+        
 
             // Rediriger pour éviter le double POST
-            return RedirectToPage("/Medications/Indexx");
+            return RedirectToPage("/Medications/index");
         }
     }
 }
